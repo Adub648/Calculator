@@ -3,6 +3,7 @@ let operator = null;
 let num1 = null;
 let num2 = null;
 let checkDecimal = /([.])/;
+let allowDecimal = true;
 const screen = document.getElementById("calc");
 let screenVal = "";
 let calculation = "";
@@ -105,7 +106,8 @@ function keyboardAssign(event) {
 
 // display numbers on screen
 function screenNumbers(num) {
-    if (screen.innerHTML.length >= 15 ) {
+    allowDecimal = true;
+    if (screen.innerHTML.length >= 15) {
         return;
     } else if (screenReset == null) {
         screen.innerHTML += num;
@@ -122,7 +124,7 @@ function appendDecimal() {
     }
     if (screen.innerHTML == "") {
         screen.innerHTML = "0.";
-    } else if (operator != null) {
+    } else if (allowDecimal == false) {
         return;
     } else {
         screen.innerHTML += ".";
@@ -133,9 +135,10 @@ function appendDecimal() {
 function addPercent() {
     if (screen.innerHTML == "") {
         return;
-    } else if (operator != null) {
+    } else if (allowDecimal == false) {
         return;
     }
+    allowDecimal = true;
     screen.innerHTML = parseInt(screen.innerHTML) / 100;
     document.getElementById("%").className = "inputBtn selected";
 }
@@ -169,30 +172,22 @@ function screenOperators(num) {
     // if no number has been entered
     if (screen.innerHTML == "") {
         return;
-    // if operator already used
+    } else if (allowDecimal == false) {
+        return;
+        // if operator already used
     } else if (operator != null) {
         calculate();
         operator = num;
         screenReset = true;
+        allowDecimal = false;
+        document.getElementById(operator).className = "inputBtn selected";
+        // if operator hasn't yet been used
     } else {
         num1 = screen.innerHTML;
-        switch (num) {
-            case "+":
-                screen.innerHTML = "+";
-                break;
-            case "-":
-                screen.innerHTML = "-";
-                break;
-            case "*":
-                screen.innerHTML = "*";
-                break;
-            case "/":
-                screen.innerHTML = "/";
-                break;
-        }
+        allowDecimal = false;
         operator = num;
         screenReset = true;
-        document.getElementById(screen.innerHTML).className = "inputBtn selected";
+        document.getElementById(operator).className = "inputBtn selected";
     }
 }
 
@@ -201,10 +196,10 @@ function calculate() {
     // if nothing has been entered
     if (operator == null && num1 == null && num2 == null) {
         return;
-    // if operator has been entered
+        // if operator has been entered
     } else if (screenReset == true) {
         return;
-    // if only num1 present
+        // if only num1 present
     } else if (operator == null && num2 == null) {
         return;
     }
@@ -242,7 +237,7 @@ function operate() {
             calculation = divide(num1, num2);
             break;
     }
-    
+
     // round to two decimal places
     if (countDecimals(calculation) >= 3) {
         calculation = calculation.toFixed(2);
